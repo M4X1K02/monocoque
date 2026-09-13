@@ -16,4 +16,7 @@ a.out
 # duly committed a 6MB build artifact.
 *.flatpak
 
+__pycache__/
+*.py[cod]
+
 /stage
