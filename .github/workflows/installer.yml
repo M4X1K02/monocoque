@@ -8,6 +8,10 @@ on:
       - tools/uninstall.sh
       - tools/monocoque-manager
       - tools/distro/**
+      - tests/startup_play.sh
+      - tests/ensure_simd_test.c
+      - src/monocoque/helper/ensure_simd.c
+      - src/monocoque/helper/ensure_simd.h
       - README.md
       - HOW-TO-USE.md
       - udev/**
@@ -19,6 +23,10 @@ on:
       - tools/uninstall.sh
       - tools/monocoque-manager
       - tools/distro/**
+      - tests/startup_play.sh
+      - tests/ensure_simd_test.c
+      - src/monocoque/helper/ensure_simd.c
+      - src/monocoque/helper/ensure_simd.h
       - README.md
       - HOW-TO-USE.md
       - udev/**

@@ -8,6 +8,8 @@
 #   test-install-containers.sh immutable
 #   test-install-containers.sh deps <name>
 #   test-install-containers.sh full <name>
+#   test-install-containers.sh verify
+#   test-install-containers.sh startup
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -211,7 +213,20 @@ deps_or_full() {
         log "== full install: $label ($image)"
     fi
 
-    if run_ctr "$image" bash /src/install.sh "${extra[@]}" >"$logf" 2>&1; then
+    local script
+    if [ "$mode" = "deps" ]; then
+        script=$(printf 'bash /src/install.sh %s' "${extra[*]}")
+    else
+        script=$(cat <<EOF
+set -euo pipefail
+bash /src/install.sh ${extra[*]}
+bash /src/tools/distro/test-install-verify.sh
+bash /src/tools/distro/test-startup.sh
+EOF
+)
+    fi
+
+    if run_ctr "$image" bash -lc "$script" >"$logf" 2>&1; then
         log "PASS $label $mode"
         PASS=$((PASS + 1))
     else
@@ -239,6 +254,9 @@ run_syntax() {
     bash -n "$INSTALLER"
     bash -n "$ROOT/tools/uninstall.sh"
     bash -n "$ROOT/tools/distro/test-install-containers.sh"
+    bash -n "$ROOT/tools/distro/test-install-verify.sh"
+    bash -n "$ROOT/tools/distro/test-startup.sh"
+    bash -n "$ROOT/tests/startup_play.sh"
     log "PASS syntax"
     PASS=$((PASS + 1))
 }
@@ -279,6 +297,16 @@ case "$cmd" in
     full)
         [ -n "$arg" ] || { echo "usage: $0 full <archlinux|fedora|ubuntu>" >&2; exit 1; }
         run_full_named full "$arg"
+        finish
+        ;;
+    verify)
+        bash "$ROOT/tools/distro/test-install-verify.sh"
+        PASS=$((PASS + 1))
+        finish
+        ;;
+    startup)
+        bash "$ROOT/tools/distro/test-startup.sh"
+        PASS=$((PASS + 1))
         finish
         ;;
     all)
